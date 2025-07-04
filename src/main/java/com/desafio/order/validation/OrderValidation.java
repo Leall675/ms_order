@@ -43,7 +43,7 @@ public class OrderValidation {
         Set<String> uniqueProductIds = new HashSet<>();
         for (OrderItemDto item : items) {
             if (!uniqueProductIds.add(item.getProductId())) {
-                return Mono.error(new DuplicateProductException("Duplicate productId detected in order items."));
+                return Mono.error(new DuplicateProductException("Não é possível comprar o mesmo produto em um único pedido."));
             }
         }
         return Mono.empty();
