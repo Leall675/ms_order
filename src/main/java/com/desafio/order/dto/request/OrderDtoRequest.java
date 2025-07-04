@@ -1,5 +1,6 @@
 package com.desafio.order.dto.request;
 
+import com.desafio.order.enuns.OrderStatusEnum;
 import com.desafio.order.model.OrderItem;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -17,5 +18,6 @@ import java.util.List;
 public class OrderDtoRequest {
     @NotEmpty(message = "A lista de itens não pode ser vazia.")
     @Valid
-    private List<OrderItem> items;
+    private List<OrderItemDto> items;
+    private OrderStatusEnum statusOrder;
 }
