@@ -48,7 +48,7 @@ public class OrderService {
                             return order;
                         }))
                 )
-                .map(orderMappers::toDto); // Make sure toDto is working on a single Order
+                .map(orderMappers::toDto);
     }
 
     public Flux<OrderDtoResponse> buscarPedidos() {
