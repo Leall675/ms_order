@@ -25,7 +25,7 @@ public class Order {
     private List<OrderItem> items;
     @Enumerated(EnumType.STRING)
     private OrderStatusEnum orderStatus;
-    private double totalAmount;
+    private String totalAmount;
     @CreationTimestamp
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
