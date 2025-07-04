@@ -27,7 +27,7 @@ public class OrderValidation {
         return buscarProduto(productId)
                 .flatMap(produto -> {
                     if (produto.getQuantity() < quantity ) {
-                        return Mono.error(new InsufficientStockException("Produto sem estoque suficiente"));
+                        return Mono.error(new InsufficientStockException("Produto sem estoque suficiente para sua compra."));
                     }
                     ProductDtoResponse productDtoResponse = new ProductDtoResponse(
                             produto.getId(),

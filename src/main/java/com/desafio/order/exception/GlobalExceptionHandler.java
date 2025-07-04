@@ -15,9 +15,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateProductException.class)
     public ResponseEntity<ErroResposta> handleDuplicateProductException(DuplicateProductException ex) {
         ErroResposta resposta = new ErroResposta();
-        resposta.setStatus(HttpStatus.UNPROCESSABLE_ENTITY.value());
+        resposta.setStatus(HttpStatus.BAD_REQUEST.value());
         resposta.setMessage(ex.getMessage());
         resposta.setErros(List.of());
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(resposta);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resposta);
+    }
+
+    @ExceptionHandler(InsufficientStockException.class)
+    public ResponseEntity<ErroResposta> handleInsufficientStockException(InsufficientStockException ex) {
+        ErroResposta resposta = new ErroResposta();
+        resposta.setStatus(HttpStatus.BAD_REQUEST.value());
+        resposta.setMessage(ex.getMessage());
+        resposta.setErros(List.of());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resposta);
     }
 }
