@@ -24,32 +24,38 @@ public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private ProductsIntegrationService productsIntegrationService;
+
     public Mono<OrderDtoResponse> criarPedido(OrderDtoRequest orderDto) {
         return orderValidation.validarDuplicidadeDeProdutos(orderDto.getItems())
-                .then(Flux.fromIterable(orderDto.getItems())
-                        .flatMap(item -> orderValidation.validarProduto(item.getProductId(), item.getQuantity()))
-                        .collectList()
-                        .flatMap(produtos -> Mono.fromCallable(() -> {
-                            Order order = orderMappers.toEntity(orderDto);
-                            order.getItems().forEach(item -> item.setOrder(order));
+                .then(
+                        Flux.fromIterable(orderDto.getItems())
+                                .flatMap(item -> orderValidation.validarProduto(item.getProductId(), item.getQuantity()))
+                                .collectList()
+                                .flatMap(produtos -> {
+                                    Order order = orderMappers.toEntity(orderDto);
+                                    order.getItems().forEach(item -> item.setOrder(order));
 
-                            double totalAmount = produtos.stream()
-                                    .mapToDouble(produtoDto -> {
-                                        OrderItem item = order.getItems().stream()
-                                                .filter(orderItem -> orderItem.getProductId().equals(produtoDto.getId()))
-                                                .findFirst().orElseThrow();
-                                        return item.getQuantity() * produtoDto.getPrice();
-                                    }).sum();
+                                    double totalAmount = produtos.stream()
+                                            .mapToDouble(produtoDto -> {
+                                                OrderItem item = order.getItems().stream()
+                                                        .filter(orderItem -> orderItem.getProductId().equals(produtoDto.getId()))
+                                                        .findFirst().orElseThrow();
+                                                return item.getQuantity() * produtoDto.getPrice();
+                                            }).sum();
 
-                            String totalAmountFormatted = String.format("%.2f", totalAmount);
-                            order.setTotalAmount(totalAmountFormatted);
+                                    order.setTotalAmount(String.format("%.2f", totalAmount));
 
-                            orderRepository.save(order);
-                            return order;
-                        }))
-                )
-                .map(orderMappers::toDto);
+                                    return Flux.fromIterable(order.getItems())
+                                            .flatMap(item -> productsIntegrationService
+                                                    .updateProduct(item.getProductId(), item.getQuantity()))
+                                            .then(Mono.fromCallable(() -> orderRepository.save(order)))
+                                            .map(orderMappers::toDto);
+                                })
+                );
     }
+
 
     public Flux<OrderDtoResponse> buscarPedidos() {
         return Flux.fromIterable(orderRepository.findAll())
