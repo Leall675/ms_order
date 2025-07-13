@@ -20,7 +20,8 @@ public class ProductsIntegrationService {
                 .uri("/v1/products/{id}", productId)
                 .retrieve()
                 .bodyToMono(ProductDtoResponse.class)
-                .onErrorResume(e -> {
+                .onErrorResume(error -> {
+                    System.err.println("Erro ao buscar o produto:" + error.getMessage());
                     return Mono.empty();
                 });
     }
