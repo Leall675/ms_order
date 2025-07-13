@@ -39,4 +39,9 @@ public class OrderController {
     public Flux<OrderDtoResponse> buscarPedidos() {
         return orderService.buscarPedidos();
     }
+
+    @PatchMapping("/{id}")
+    public Mono<Void> cancelOrder(@PathVariable String id) {
+        return orderService.cancelarPedido(id);
+    }
 }

@@ -2,7 +2,9 @@ package com.desafio.order.service;
 
 import com.desafio.order.dto.request.OrderDtoRequest;
 import com.desafio.order.dto.response.OrderDtoResponse;
+import com.desafio.order.enuns.OrderStatusEnum;
 import com.desafio.order.enuns.PaymentStatus;
+import com.desafio.order.exception.OrderNotFoundException;
 import com.desafio.order.mapper.OrderMappers;
 import com.desafio.order.model.Order;
 import com.desafio.order.model.OrderItem;
@@ -68,6 +70,15 @@ public class OrderService {
     public Flux<OrderDtoResponse> buscarPedidos() {
         return Flux.fromIterable(orderRepository.findAll())
                 .map(orderMappers::toDto);
+    }
+
+    public Mono<Void> cancelarPedido(String id) {
+        return Mono.fromRunnable(() -> {
+            Order order = orderRepository.findById(id)
+                    .orElseThrow(() -> new OrderNotFoundException("Pedido não localizado na base de dados."));
+            order.setOrderStatus(OrderStatusEnum.CANCELADO);
+            orderRepository.save(order);
+        });
     }
 
 }
