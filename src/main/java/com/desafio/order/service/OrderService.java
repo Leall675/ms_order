@@ -2,6 +2,7 @@ package com.desafio.order.service;
 
 import com.desafio.order.dto.request.OrderDtoRequest;
 import com.desafio.order.dto.response.OrderDtoResponse;
+import com.desafio.order.enuns.PaymentStatus;
 import com.desafio.order.mapper.OrderMappers;
 import com.desafio.order.model.Order;
 import com.desafio.order.model.OrderItem;
@@ -27,6 +28,9 @@ public class OrderService {
     @Autowired
     private ProductsIntegrationService productsIntegrationService;
 
+    @Autowired
+    private PaymentsIntegrationService paymentsIntegrationService;
+
     public Mono<OrderDtoResponse> criarPedido(OrderDtoRequest orderDto) {
         return orderValidation.validarDuplicidadeDeProdutos(orderDto.getItems())
                 .then(
@@ -44,14 +48,18 @@ public class OrderService {
                                                         .findFirst().orElseThrow();
                                                 return item.getQuantity() * produtoDto.getPrice();
                                             }).sum();
-
                                     order.setTotalAmount(String.format("%.2f", totalAmount));
 
-                                    return Flux.fromIterable(order.getItems())
-                                            .flatMap(item -> productsIntegrationService
-                                                    .updateProduct(item.getProductId(), item.getQuantity()))
-                                            .then(Mono.fromCallable(() -> orderRepository.save(order)))
-                                            .map(orderMappers::toDto);
+                                    return paymentsIntegrationService.createdPayment(totalAmount, orderDto.getPaymentMethod(), PaymentStatus.PENDENTE)
+                                            .flatMap(paymentResponse -> {
+                                                order.setPaymentId(paymentResponse.getId());
+                                                return Flux.fromIterable(order.getItems())
+                                                        .flatMap(item -> productsIntegrationService
+                                                                .updateProduct(item.getProductId(), item.getQuantity()))
+                                                        .then(Mono.fromCallable(() -> orderRepository.save(order)))
+                                                        .map(orderMappers::toDto);
+                                            });
+
                                 })
                 );
     }
