@@ -3,6 +3,7 @@ package com.desafio.order.service;
 import com.desafio.order.dto.request.StockDtoUpdateRequest;
 import com.desafio.order.dto.response.ProductDtoResponse;
 import com.desafio.order.exception.ProductNotFoundException;
+import com.desafio.order.exception.ProductRetrievalException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
