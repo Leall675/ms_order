@@ -25,6 +25,7 @@ public class OrderMappers {
                         })
                         .toList();
         order.setItems(items);
+        order.setPaymentMethod(dto.getPaymentMethod());
         order.setOrderStatus(dto.getStatusOrder());
         return order;
     }
@@ -33,6 +34,7 @@ public class OrderMappers {
         OrderDtoResponse response = new OrderDtoResponse();
         response.setId(order.getId());
         response.setPaymentId(order.getPaymentId());
+        response.setPaymentMethod(order.getPaymentMethod());
         List<OrderItemDtoResponse> itemDtos = order.getItems().stream()
                 .map(item -> {
                     OrderItemDtoResponse itemDtoResponse = new OrderItemDtoResponse();

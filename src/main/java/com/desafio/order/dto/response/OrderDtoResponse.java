@@ -1,6 +1,7 @@
 package com.desafio.order.dto.response;
 
 import com.desafio.order.enuns.OrderStatusEnum;
+import com.desafio.order.enuns.PaymentMethod;
 import com.desafio.order.model.OrderItem;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,6 +20,7 @@ public class OrderDtoResponse {
     private String paymentId;
     private List<OrderItemDtoResponse> items;
     private String totalAmount;
+    private PaymentMethod paymentMethod;
     private OrderStatusEnum orderStatus;
     private LocalDateTime createdAt;
 }

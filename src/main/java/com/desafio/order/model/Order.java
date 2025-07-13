@@ -1,6 +1,7 @@
 package com.desafio.order.model;
 
 import com.desafio.order.enuns.OrderStatusEnum;
+import com.desafio.order.enuns.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -25,6 +26,7 @@ public class Order {
     private List<OrderItem> items;
     @Enumerated(EnumType.STRING)
     private OrderStatusEnum orderStatus;
+    private PaymentMethod paymentMethod;
     private String totalAmount;
     @CreationTimestamp
     private LocalDateTime createdAt;
