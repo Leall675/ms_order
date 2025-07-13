@@ -57,6 +57,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resposta);
     }
 
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<ErroResposta> handleOrderNotFoundException(OrderNotFoundException ex) {
+        ErroResposta resposta = new ErroResposta();
+        resposta.setStatus(HttpStatus.NOT_FOUND.value());
+        resposta.setMessage(ex.getMessage());
+        resposta.setErros(List.of());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resposta);
+    }
+
     @ExceptionHandler(ProductRetrievalException.class)
     public ResponseEntity<ErroResposta> handleProductRetrievalException(ProductRetrievalException ex) {
         ErroResposta resposta = new ErroResposta();
