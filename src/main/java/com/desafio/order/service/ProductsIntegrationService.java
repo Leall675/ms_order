@@ -1,8 +1,7 @@
 package com.desafio.order.service;
 
-import com.desafio.order.dto.request.StockDtoUpdate;
+import com.desafio.order.dto.request.StockDtoUpdateRequest;
 import com.desafio.order.dto.response.ProductDtoResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -12,7 +11,6 @@ public class ProductsIntegrationService {
 
     private final WebClient webClient;
 
-    @Autowired
     public ProductsIntegrationService(WebClient webClientProducts) {
         this.webClient = webClientProducts;
     }
@@ -28,7 +26,7 @@ public class ProductsIntegrationService {
     }
 
     public Mono<Void> updateProduct(String productId, long quantity) {
-        StockDtoUpdate dtoUpdate = new StockDtoUpdate(quantity, "REDUCE");
+        StockDtoUpdateRequest dtoUpdate = new StockDtoUpdateRequest(quantity, "REDUCE");
         return webClient.patch()
                 .uri("/v1/products/{id}/stock", productId)
                 .bodyValue(dtoUpdate)

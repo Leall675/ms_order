@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class StockDtoUpdate {
+public class StockDtoUpdateRequest {
     private Long quantity;
     private String operation; // "REDUCE" ou "ADD"
 }
