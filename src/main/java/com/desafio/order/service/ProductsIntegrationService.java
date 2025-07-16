@@ -33,8 +33,8 @@ public class ProductsIntegrationService {
     }
 
 
-    public Mono<Void> updateProduct(String productId, long quantity) {
-        StockDtoUpdateRequest dtoUpdate = new StockDtoUpdateRequest(quantity, "REDUCE");
+    public Mono<Void> updateProduct(String productId, long quantity, String operation) {
+        StockDtoUpdateRequest dtoUpdate = new StockDtoUpdateRequest(quantity, operation);
         return webClient.patch()
                 .uri("/v1/products/{id}/stock", productId)
                 .bodyValue(dtoUpdate)
