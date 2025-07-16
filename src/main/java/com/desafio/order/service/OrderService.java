@@ -4,6 +4,7 @@ import com.desafio.order.dto.request.OrderDtoRequest;
 import com.desafio.order.dto.response.OrderDtoResponse;
 import com.desafio.order.enuns.OrderStatusEnum;
 import com.desafio.order.enuns.PaymentStatus;
+import com.desafio.order.exception.OrderCancelDuplicated;
 import com.desafio.order.exception.OrderNotFoundException;
 import com.desafio.order.mapper.OrderMappers;
 import com.desafio.order.model.Order;
@@ -57,7 +58,7 @@ public class OrderService {
                                                 order.setPaymentId(paymentResponse.getId());
                                                 return Flux.fromIterable(order.getItems())
                                                         .flatMap(item -> productsIntegrationService
-                                                                .updateProduct(item.getProductId(), item.getQuantity()))
+                                                                .updateProduct(item.getProductId(), item.getQuantity(), "REDUCE"))
                                                         .then(Mono.fromCallable(() -> orderRepository.save(order)))
                                                         .map(orderMappers::toDto);
                                             });
@@ -73,11 +74,18 @@ public class OrderService {
     }
 
     public Mono<Void> cancelarPedido(String id) {
-        return Mono.fromRunnable(() -> {
-            Order order = orderRepository.findById(id)
-                    .orElseThrow(() -> new OrderNotFoundException("Pedido não localizado na base de dados."));
-            order.setOrderStatus(OrderStatusEnum.CANCELADO);
-            orderRepository.save(order);
+        return Mono.fromCallable(() -> orderRepository.findById(id)
+                        .orElseThrow(() -> new OrderNotFoundException("Pedido não localizado na base de dados.")))
+                .flatMap(order -> {
+                    if (order.getOrderStatus().equals(OrderStatusEnum.CANCELADO)){
+                        return Mono.error(new OrderCancelDuplicated("Esse pedido já consta como cancelado."));
+                    }
+                    order.setOrderStatus(OrderStatusEnum.CANCELADO);
+                    return Flux.fromIterable(order.getItems())
+                            .flatMap(item -> productsIntegrationService.updateProduct(item.getProductId(), item.getQuantity(), "ADD"))
+                            .then(Mono.fromCallable(() -> orderRepository.save(order)))
+                                    .then();
+
         });
     }
 
