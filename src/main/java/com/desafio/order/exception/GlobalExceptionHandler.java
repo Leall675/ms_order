@@ -84,4 +84,13 @@ public class GlobalExceptionHandler {
         ErroResposta erroResposta = new ErroResposta(HttpStatus.UNPROCESSABLE_ENTITY.value(), "Erro de validação", erro);
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(erroResposta);
     }
+
+    @ExceptionHandler(OrderCancelDuplicated.class)
+    public ResponseEntity<ErroResposta> handleOrderCancelDuplicated(OrderCancelDuplicated ex) {
+        ErroResposta resposta = new ErroResposta();
+        resposta.setStatus(HttpStatus.BAD_REQUEST.value());
+        resposta.setMessage(ex.getMessage());
+        resposta.setErros(List.of());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resposta);
+    }
 }
