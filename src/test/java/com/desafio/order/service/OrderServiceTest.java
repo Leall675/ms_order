@@ -22,6 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -163,6 +164,52 @@ class OrderServiceTest {
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
         assertThrows(OrderCancelDuplicated.class, () -> orderService.cancelarPedido(orderId).block());
+    }
+
+    @Test
+    @DisplayName("Dado pedidos existentes, quando buscar pedidos, então retorna o objeto OrderDtoResponse correspondente")
+    void testBuscarPedidos_Success() {
+        List<Order> list = new ArrayList<>();
+
+        Order order1 = new Order();
+        Order order2 = new Order();
+        order1.setId("order-1");
+        order2.setId("order-2");
+
+        list.add(order1);
+        list.add(order2);
+
+        OrderDtoResponse orderDtoResponse1 = new OrderDtoResponse();
+        OrderDtoResponse orderDtoResponse2 = new OrderDtoResponse();
+
+        orderDtoResponse1.setId(order1.getId());
+        orderDtoResponse2.setId(order2.getId());
+
+        when(orderRepository.findAll()).thenReturn(list);
+        when(orderMappers.toDto(order1)).thenReturn(orderDtoResponse1);
+        when(orderMappers.toDto(order2)).thenReturn(orderDtoResponse2);
+
+
+        Flux<OrderDtoResponse> responseFlux = orderService.buscarPedidos();
+
+        List<OrderDtoResponse> orderDtoResponses = responseFlux.collectList().block();
+        assertEquals(2, orderDtoResponses.size());
+        assertEquals(orderDtoResponse1.getId(), orderDtoResponses.get(0).getId());
+        assertEquals(orderDtoResponse2.getId(), orderDtoResponses.get(1).getId());
+
+    }
+
+    @Test
+    @DisplayName("Quando não existem pedidos, então retorna uma lista vazia de OrderDtoResponse")
+    void testBuscarPedidos_Empty() {
+        when(orderRepository.findAll()).thenReturn(Collections.emptyList());
+
+        Flux<OrderDtoResponse> responseFlux = orderService.buscarPedidos();
+
+        List<OrderDtoResponse> orderDtoResponses = responseFlux.collectList().block();
+
+        assertNotNull(orderDtoResponses);
+        assertEquals(0, orderDtoResponses.size());
     }
 }
 
