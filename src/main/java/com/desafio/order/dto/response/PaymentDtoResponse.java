@@ -17,4 +17,7 @@ public class PaymentDtoResponse {
     private String paymentMethod;
     private String paymentStatus;
     private LocalDateTime createdAt;
+
+    public PaymentDtoResponse(String paymentId) {
+    }
 }
